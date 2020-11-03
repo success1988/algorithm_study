@@ -13,6 +13,10 @@ import java.util.stream.Collectors;
  * @Author：wangchenggong
  * @Date 2020/10/26 5:34
  * @Description
+ * 两个路由同时满足以下三个条件时会发生优先级冲突：
+ *  * a) 系统标识+业务类型+交易类型+对公对私+银行+优先级  都相同，
+ *  * b) 两个路由 选用的  通道不同
+ *  * c) 两个路由选用的通道 所针对的公司主相同（两者任意一个为空，或者两者都非空但相同，都可认为是公司主体相同）
  * @Version
  */
 public class CheckRouteConflict {

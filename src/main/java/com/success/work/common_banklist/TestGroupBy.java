@@ -1,4 +1,6 @@
-package com.success.work.check_conflict;
+package com.success.work.common_banklist;
+
+import com.success.work.check_conflict.ChannelBank;
 
 import java.util.ArrayList;
 import java.util.List;

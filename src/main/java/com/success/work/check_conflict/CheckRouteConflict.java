@@ -18,16 +18,32 @@ import java.util.stream.Collectors;
  */
 public class CheckRouteConflict {
 
+
+
+
+
     public static void main(String[] args) {
 
         List<String> conflictRowIndexList = Arrays.asList("1","2","3","4","5","6","7","8","9","10","11");
-        String errorIndexes = String.join("、",conflictRowIndexList);
+
+        //stream filter方法若无元素符合条件，则返回长度为0的空集合
+        List<String> myList = conflictRowIndexList.stream().filter(
+                s -> s.length()>3
+        ).collect(Collectors.toList());
+
+        System.out.println(myList.size());
+        for(String str : myList){
+            System.out.println(str);
+        }
+
+
+        /*String errorIndexes = String.join("、",conflictRowIndexList);
         if(conflictRowIndexList.size() > 10){
             List<String> subList = conflictRowIndexList.subList(0, 10);
             errorIndexes = String.join("、",subList)+"...";
         }
 
-        System.out.println(errorIndexes);
+        System.out.println(errorIndexes);*/
 
        /* CheckRouteConflict checkRouteConflict = new CheckRouteConflict();
         checkRouteConflict.batchUpdateChannelBank(new HashMap<Integer,String> (), new ArrayList<Integer>(), 10, true, true);*/

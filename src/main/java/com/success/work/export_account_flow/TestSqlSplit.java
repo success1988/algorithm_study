@@ -60,41 +60,19 @@ public class TestSqlSplit {
             //System.out.println("-- 查询account="+accountNoStr+"的资金进出明细");
             String accountNo = arr[1];
             String sql = "SELECT\n" +
-                    "\tt.request_no 交易订单号,\n" +
-                    "\tt.flow_no 账务序号,\n" +
-                    "\tt.account_no 账户编号,\n" +
-                    "\tt. NAME 用户名称,\n" +
-                    "\t(\n" +
-                    "\t\tSELECT\n" +
-                    "\t\t\ts1. NAME\n" +
-                    "\t\tFROM\n" +
-                    "\t\t\tsys_dict s1\n" +
-                    "\t\tWHERE\n" +
-                    "\t\t\ts1.type = 'batchBizTypeBook'\n" +
-                    "\t\tAND s1. CODE = t.biz_type\n" +
-                    "\t) 业务类型,\n" +
-                    "\t(\n" +
-                    "\t\tSELECT\n" +
-                    "\t\t\ts2. NAME\n" +
-                    "\t\tFROM\n" +
-                    "\t\t\tsys_dict s2\n" +
-                    "\t\tWHERE\n" +
-                    "\t\t\ts2.type = 'batchTransTypeBook'\n" +
-                    "\t\tAND s2. CODE = t1.trade_type\n" +
-                    "\t) 交易类型,\n" +
-                    "\tt.amount 交易金额,\n" +
-                    "\t(\n" +
-                    "\t\tCASE t.account_dir\n" +
-                    "\t\tWHEN '0' THEN\n" +
-                    "\t\t\t'转出'\n" +
-                    "\t\tELSE\n" +
-                    "\t\t\t'转入'\n" +
-                    "\t\tEND\n" +
-                    "\t) 资金方向,\n" +
-                    "\tt.frozen_amount 使用冻结金额,\n" +
-                    "\tt.create_time 记账时间,\n" +
-                    "\tt.finish_time 交易完成时间,\n" +
-                    "\tt.remain_amount 交易后余额\n" +
+                    "\tt.request_no \"交易订单号\",\n" +
+                    "\tt.flow_no \"账务序号\",\n" +
+                    "\tt.account_no \"账户编号\",\n" +
+                    "\tt. NAME \"用户名称\",\n" +
+                    "\ts1.NAME \"业务类型\",\n" +
+                    "\ts2.NAME \"交易类型\",\n" +
+                    "\tt.amount \"交易金额\",\n" +
+                    "\t(CASE t.account_dir WHEN '0' THEN '转出'\n" +
+                    "\t\tELSE '转入' END) \"资金方向\",\n" +
+                    "\tt.frozen_amount \"使用冻结金额\",\n" +
+                    "\tt.create_time \"记账时间\",\n" +
+                    "\tt.finish_time \"交易完成时间\",\n" +
+                    "\tt.remain_amount \"交易后余额\"\n" +
                     "FROM\n" +
                     "\t(\n" +
                     "\t\tSELECT\n" +
@@ -109,114 +87,59 @@ public class TestSqlSplit {
                     "\t\t\tt1.create_time,\n" +
                     "\t\t\tt1.finish_time,\n" +
                     "\t\t\tt1.remain_amount,\n" +
-                    "\t\t\tt1.flow_no\n" +
+                    "\t\t\tt1.flow_no,\n" +
+                    "\t\t\tt1.remark \n" +
                     "\t\tFROM\n" +
-                    "\t\t\ttran_logs t1,\n" +
-                    "\t\t\t(\n" +
-                    "\t\t\t\tSELECT DISTINCT\n" +
-                    "\t\t\t\t\tt.request_no,\n" +
-                    "\t\t\t\t\tt.account_no,\n" +
-                    "\t\t\t\t\tt. NAME,\n" +
-                    "\t\t\t\t\tt.biz_type,\n" +
-                    "\t\t\t\t\tt.amount,\n" +
-                    "\t\t\t\t\tt.account_dir,\n" +
-                    "\t\t\t\t\tt.frozen_amount,\n" +
-                    "\t\t\t\t\tt.create_time,\n" +
-                    "\t\t\t\t\tt.finish_time,\n" +
-                    "\t\t\t\t\tt.remain_amount,\n" +
-                    "\t\t\t\t\tt.flow_no\n" +
-                    "\t\t\t\tFROM\n" +
-                    "\t\t\t\t\ttran_logs t\n" +
-                    "\t\t\t\tWHERE\n" +
-                    "\t\t\t\t\tt.account_no IN (\n" +
-                    "\t\t\t\t\t\t'"+accountNo+"'\n" +
-                    "\t\t\t\t\t)\n" +
-                    "\t\t\t) t2\n" +
-                    "\t\tWHERE\n" +
-                    "\t\t\tt1.request_no = t2.request_no\n" +
-                    "\t\tAND t1.flow_no = t2.flow_no\n" +
+                    "\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs t1\n" +
+                    "\t\twhere t1.account_no IN ('"+accountNo+"')\n" +
                     "\t\tAND t1.account_no NOT LIKE 'O%'\n" +
                     "\t) t\n" +
-                    "LEFT JOIN order_batch_trans_detail t1 ON t.request_no = t1.request_no\n" +
+                    "LEFT JOIN mysql_hhr_bank_21_215.bank_depository_hhr.order_batch_trans_detail t1 ON t.request_no = t1.request_no\n" +
+                    "left join (select code,name from mysql_hhr_bank_21_215.bank_depository_hhr.sys_dict where type = 'batchBizTypeBook')s1\n" +
+                    "on s1.CODE = t.biz_type\n" +
+                    "left join (select code,name from mysql_hhr_bank_21_215.bank_depository_hhr.sys_dict where type = 'batchTransTypeBook')s2\n" +
+                    "on s2.CODE = t.biz_type order by t.create_time desc \n" +
                     "UNION ALL\n" +
-                    "\tSELECT\n" +
-                    "\t\tt.request_no 交易订单号,\n" +
-                    "\t\tt.flow_no 账务序号,\n" +
-                    "\t\tt.account_no 账户编号,\n" +
-                    "\t\tt. NAME 用户名称,\n" +
-                    "\t\t(\n" +
-                    "\t\t\tSELECT\n" +
-                    "\t\t\t\ts1. NAME\n" +
-                    "\t\t\tFROM\n" +
-                    "\t\t\t\tsys_dict s1\n" +
-                    "\t\t\tWHERE\n" +
-                    "\t\t\t\ts1.type = 'batchBizTypeBook'\n" +
-                    "\t\t\tAND s1. CODE = t.biz_type\n" +
-                    "\t\t) 业务类型,\n" +
-                    "\t\t(\n" +
-                    "\t\t\tSELECT\n" +
-                    "\t\t\t\ts2. NAME\n" +
-                    "\t\t\tFROM\n" +
-                    "\t\t\t\tsys_dict s2\n" +
-                    "\t\t\tWHERE\n" +
-                    "\t\t\t\ts2.type = 'batchTransTypeBook'\n" +
-                    "\t\t\tAND s2. CODE = t1.trade_type\n" +
-                    "\t\t) 交易类型,\n" +
-                    "\t\tt.amount 交易金额,\n" +
-                    "\t\t(\n" +
-                    "\t\t\tCASE t.account_dir\n" +
-                    "\t\t\tWHEN '0' THEN\n" +
-                    "\t\t\t\t'转出'\n" +
-                    "\t\t\tELSE\n" +
-                    "\t\t\t\t'转入'\n" +
-                    "\t\t\tEND\n" +
-                    "\t\t) 资金方向,\n" +
-                    "\t\tt.frozen_amount 使用冻结金额,\n" +
-                    "\t\tt.create_time 记账时间,\n" +
-                    "\t\tt.finish_time 交易完成时间,\n" +
-                    "\t\tt.remain_amount 交易后余额\n" +
-                    "\tFROM\n" +
-                    "\t\t(\n" +
-                    "\t\t\tSELECT\n" +
-                    "\t\t\t\tt1.id,\n" +
-                    "\t\t\t\tt1.request_no,\n" +
-                    "\t\t\t\tt1.account_no,\n" +
-                    "\t\t\t\tt1. NAME,\n" +
-                    "\t\t\t\tt1.biz_type,\n" +
-                    "\t\t\t\tt1.amount,\n" +
-                    "\t\t\t\tt1.account_dir,\n" +
-                    "\t\t\t\tt1.frozen_amount,\n" +
-                    "\t\t\t\tt1.create_time,\n" +
-                    "\t\t\t\tt1.finish_time,\n" +
-                    "\t\t\t\tt1.remain_amount,\n" +
-                    "\t\t\t\tt1.flow_no\n" +
-                    "\t\t\tFROM\n" +
-                    "\t\t\t\ttran_logs_2019 t1,\n" +
-                    "\t\t\t\t(\n" +
-                    "\t\t\t\t\tSELECT DISTINCT\n" +
-                    "\t\t\t\t\t\tt.request_no,\n" +
-                    "\t\t\t\t\t\tt.account_no,\n" +
-                    "\t\t\t\t\t\tt. NAME,\n" +
-                    "\t\t\t\t\t\tt.biz_type,\n" +
-                    "\t\t\t\t\t\tt.amount,\n" +
-                    "\t\t\t\t\t\tt.account_dir,\n" +
-                    "\t\t\t\t\t\tt.frozen_amount,\n" +
-                    "\t\t\t\t\t\tt.create_time,\n" +
-                    "\t\t\t\t\t\tt.finish_time,\n" +
-                    "\t\t\t\t\t\tt.remain_amount,\n" +
-                    "\t\t\t\t\t\tt.flow_no\n" +
-                    "\t\t\t\t\tFROM\n" +
-                    "\t\t\t\t\t\ttran_logs_2019 t\n" +
-                    "\t\t\t\t\tWHERE\n" +
-                    "\t\t\t\t\t\tt.account_no IN (\n" +
-                    "\t\t\t\t\t\t\t'" + accountNo +"'\t\t\t\t\t\t)\n" +
-                    "\t\t\t\t) t2\n" +
-                    "\t\t\tWHERE\n" +
-                    "\t\t\t\tt1.request_no = t2.request_no\n" +
-                    "\t\t\tAND t1.flow_no = t2.flow_no\n" +
-                    "\t\t\tAND t1.account_no NOT LIKE 'O%'\n" +
-                    "\t\t) t\n" +
-                    "\tLEFT JOIN order_batch_trans_detail t1 ON t.request_no = t1.request_no;";
+                    "SELECT\n" +
+                    "\tt.request_no \"交易订单号\",\n" +
+                    "\tt.flow_no \"账务序号\",\n" +
+                    "\tt.account_no \"账户编号\",\n" +
+                    "\tt. NAME \"用户名称\",\n" +
+                    "\ts1.NAME \"业务类型\",\n" +
+                    "\ts2.NAME \"交易类型\",\n" +
+                    "\tt.amount \"交易金额\",\n" +
+                    "\t(CASE t.account_dir WHEN '0' THEN '转出'\n" +
+                    "\t\tELSE '转入' END) \"资金方向\",\n" +
+                    "\tt.frozen_amount \"使用冻结金额\",\n" +
+                    "\tt.create_time \"记账时间\",\n" +
+                    "\tt.finish_time \"交易完成时间\",\n" +
+                    "\tt.remain_amount \"交易后余额\"\n" +
+                    "FROM\n" +
+                    "\t(\n" +
+                    "\t\tSELECT\n" +
+                    "\t\t\tt1.id,\n" +
+                    "\t\t\tt1.request_no,\n" +
+                    "\t\t\tt1.account_no,\n" +
+                    "\t\t\tt1. NAME,\n" +
+                    "\t\t\tt1.biz_type,\n" +
+                    "\t\t\tt1.amount,\n" +
+                    "\t\t\tt1.account_dir,\n" +
+                    "\t\t\tt1.frozen_amount,\n" +
+                    "\t\t\tt1.create_time,\n" +
+                    "\t\t\tt1.finish_time,\n" +
+                    "\t\t\tt1.remain_amount,\n" +
+                    "\t\t\tt1.flow_no,\n" +
+                    "\t\t\tt1.remark \n" +
+                    "\t\tFROM\n" +
+                    "\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs_2019 t1\n" +
+                    "\t\twhere t1.account_no IN ('"+accountNo+"')\n" +
+                    "\t\tAND t1.account_no NOT LIKE 'O%'\n" +
+                    "\t) t\n" +
+                    "LEFT JOIN mysql_hhr_bank_21_215.bank_depository_hhr.order_batch_trans_detail t1 ON t.request_no = t1.request_no\n" +
+                    "left join (select code,name from mysql_hhr_bank_21_215.bank_depository_hhr.sys_dict where type = 'batchBizTypeBook')s1\n" +
+                    "on s1.CODE = t.biz_type\n" +
+                    "left join (select code,name from mysql_hhr_bank_21_215.bank_depository_hhr.sys_dict where type = 'batchTransTypeBook')s2\n" +
+                    "on s2.CODE = t.biz_type order by t.create_time desc ;";
 
             String fileName = arr[0]+"的资金进出明细.sql";
             FileUtils.writeStringToFile(new File(flowDir, fileName), sql, "UTF-8", false);
@@ -236,41 +159,19 @@ public class TestSqlSplit {
 
 
             String daichangSql = "SELECT\n" +
-                    "\tt.request_no 交易订单号,\n" +
-                    "\tt.flow_no 账务序号,\n" +
-                    "\tt.account_no 账户编号,\n" +
-                    "\tt. NAME 用户名称,\n" +
-                    "\t(\n" +
-                    "\t\tSELECT\n" +
-                    "\t\t\ts1. NAME\n" +
-                    "\t\tFROM\n" +
-                    "\t\t\tsys_dict s1\n" +
-                    "\t\tWHERE\n" +
-                    "\t\t\ts1.type = 'batchBizTypeBook'\n" +
-                    "\t\tAND s1. CODE = t.biz_type\n" +
-                    "\t) 业务类型,\n" +
-                    "\t(\n" +
-                    "\t\tSELECT\n" +
-                    "\t\t\ts2. NAME\n" +
-                    "\t\tFROM\n" +
-                    "\t\t\tsys_dict s2\n" +
-                    "\t\tWHERE\n" +
-                    "\t\t\ts2.type = 'batchTransTypeBook'\n" +
-                    "\t\tAND s2. CODE = t1.trade_type\n" +
-                    "\t) 交易类型,\n" +
-                    "\tt.amount 交易金额,\n" +
-                    "\t(\n" +
-                    "\t\tCASE t.account_dir\n" +
-                    "\t\tWHEN '0' THEN\n" +
-                    "\t\t\t'转出'\n" +
-                    "\t\tELSE\n" +
-                    "\t\t\t'转入'\n" +
-                    "\t\tEND\n" +
-                    "\t) 资金方向,\n" +
-                    "\tt.frozen_amount 使用冻结金额,\n" +
-                    "\tt.create_time 记账时间,\n" +
-                    "\tt.finish_time 交易完成时间,\n" +
-                    "\tt.remain_amount 交易后余额\n" +
+                    "\tt.request_no \"交易订单号\",\n" +
+                    "\tt.flow_no \"账务序号\",\n" +
+                    "\tt.account_no \"账户编号\",\n" +
+                    "\tt. NAME \"用户名称\",\n" +
+                    "\ts1.NAME \"业务类型\",\n" +
+                    "\ts2.NAME \"交易类型\",\n" +
+                    "\tt.amount \"交易金额\",\n" +
+                    "\t(CASE t.account_dir WHEN '0' THEN '转出'\n" +
+                    "\t\tELSE '转入' END) \"资金方向\",\n" +
+                    "\tt.frozen_amount \"使用冻结金额\",\n" +
+                    "\tt.create_time \"记账时间\",\n" +
+                    "\tt.finish_time \"交易完成时间\",\n" +
+                    "\tt.remain_amount \"交易后余额\"\n" +
                     "FROM\n" +
                     "\t(\n" +
                     "\t\tSELECT\n" +
@@ -285,36 +186,21 @@ public class TestSqlSplit {
                     "\t\t\tt1.create_time,\n" +
                     "\t\t\tt1.finish_time,\n" +
                     "\t\t\tt1.remain_amount,\n" +
-                    "\t\t\tt1.flow_no\n" +
+                    "\t\t\tt1.flow_no,\n" +
+                    "\t\t\tt1.remark\n" +
                     "\t\tFROM\n" +
-                    "\t\t\ttran_logs t1,\n" +
-                    "\t\t\t(\n" +
-                    "\t\t\t\tSELECT DISTINCT\n" +
-                    "\t\t\t\t\tt.request_no,\n" +
-                    "\t\t\t\t\tt.account_no,\n" +
-                    "\t\t\t\t\tt. NAME,\n" +
-                    "\t\t\t\t\tt.biz_type,\n" +
-                    "\t\t\t\t\tt.amount,\n" +
-                    "\t\t\t\t\tt.account_dir,\n" +
-                    "\t\t\t\t\tt.frozen_amount,\n" +
-                    "\t\t\t\t\tt.create_time,\n" +
-                    "\t\t\t\t\tt.finish_time,\n" +
-                    "\t\t\t\t\tt.remain_amount,\n" +
-                    "\t\t\t\t\tt.flow_no\n" +
-                    "\t\t\t\tFROM\n" +
-                    "\t\t\t\t\ttran_logs t\n" +
-                    "\t\t\t\tWHERE  \n" +
-                    "    t.biz_type = 'AUTO_COMPENSATORY' and t.account_dir = '1' and \n" +
-                    "\t\t\t\t\tt.account_no IN ("+investAccountNosResult+")\n" +
-                    "\t\t\t) t2\n" +
+                    "\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs t1\n" +
                     "\t\tWHERE\n" +
-                    "\t\t\tt1.request_no = t2.request_no\n" +
-                    "\t\tAND t1.flow_no = t2.flow_no\n" +
+                    "\t\t\tDATE_FORMAT(t1.create_time) in ('2020-11-08','2020-11-10','2020-11-11','2020-11-12','2020-11-13','2020-11-16','2020-11-17','2020-11-18','2020-11-19','2020-11-23')\n" +
+                    "\t\t\tand t1.biz_type = 'AUTO_COMPENSATORY' and t1.account_no in ("+investAccountNosResult+")\n" +
                     "\t\tAND t1.account_no NOT LIKE 'O%'\n" +
                     "\t) t\n" +
-                    "LEFT JOIN order_batch_trans_detail t1 ON t.request_no = t1.request_no;";
+                    "LEFT JOIN mysql_hhr_bank_21_215.bank_depository_hhr.order_batch_trans_detail t1 ON t.request_no = t1.request_no\n" +
+                    "left join (select code,name from mysql_hhr_bank_21_215.bank_depository_hhr.sys_dict where type = 'batchBizTypeBook')s1\n" +
+                    "on s1.CODE = t.biz_type\n" +
+                    "left join (select code,name from mysql_hhr_bank_21_215.bank_depository_hhr.sys_dict where type = 'batchTransTypeBook')s2\n" +
+                    "on s2.CODE = t.biz_type order by t.create_time desc;";
             FileUtils.writeStringToFile(new File(daichangDir, fileName), daichangSql, "UTF-8", false);
-
         }
 
 

@@ -87,11 +87,30 @@ public class TestSqlSplit {
                     "\t\t\tt1.create_time,\n" +
                     "\t\t\tt1.finish_time,\n" +
                     "\t\t\tt1.remain_amount,\n" +
-                    "\t\t\tt1.flow_no,\n" +
-                    "\t\t\tt1.remark \n" +
+                    "\t\t\tt1.flow_no\n" +
                     "\t\tFROM\n" +
-                    "\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs t1\n" +
-                    "\t\twhere t1.account_no IN ('"+accountNo+"')\n" +
+                    "\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs t1,\n" +
+                    "\t\t\t(\n" +
+                    "\t\t\t\tSELECT DISTINCT\n" +
+                    "\t\t\t\t\tt.request_no,\n" +
+                    "\t\t\t\t\tt.account_no,\n" +
+                    "\t\t\t\t\tt. NAME,\n" +
+                    "\t\t\t\t\tt.biz_type,\n" +
+                    "\t\t\t\t\tt.amount,\n" +
+                    "\t\t\t\t\tt.account_dir,\n" +
+                    "\t\t\t\t\tt.frozen_amount,\n" +
+                    "\t\t\t\t\tt.create_time,\n" +
+                    "\t\t\t\t\tt.finish_time,\n" +
+                    "\t\t\t\t\tt.remain_amount,\n" +
+                    "\t\t\t\t\tt.flow_no\n" +
+                    "\t\t\t\tFROM\n" +
+                    "\t\t\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs t\n" +
+                    "\t\t\t\tWHERE\n" +
+                    "\t\t\t\t\tt.account_no IN ('"+accountNo+"')\n" +
+                    "\t\t\t) t2\n" +
+                    "\t\tWHERE\n" +
+                    "\t\t\tt1.request_no = t2.request_no\n" +
+                    "\t\tAND t1.flow_no = t2.flow_no\n" +
                     "\t\tAND t1.account_no NOT LIKE 'O%'\n" +
                     "\t) t\n" +
                     "LEFT JOIN mysql_hhr_bank_21_215.bank_depository_hhr.order_batch_trans_detail t1 ON t.request_no = t1.request_no\n" +
@@ -99,7 +118,9 @@ public class TestSqlSplit {
                     "on s1.CODE = t.biz_type\n" +
                     "left join (select code,name from mysql_hhr_bank_21_215.bank_depository_hhr.sys_dict where type = 'batchTransTypeBook')s2\n" +
                     "on s2.CODE = t.biz_type order by t.create_time desc \n" +
+                    "\n" +
                     "UNION ALL\n" +
+                    "\n" +
                     "SELECT\n" +
                     "\tt.request_no \"交易订单号\",\n" +
                     "\tt.flow_no \"账务序号\",\n" +
@@ -128,11 +149,30 @@ public class TestSqlSplit {
                     "\t\t\tt1.create_time,\n" +
                     "\t\t\tt1.finish_time,\n" +
                     "\t\t\tt1.remain_amount,\n" +
-                    "\t\t\tt1.flow_no,\n" +
-                    "\t\t\tt1.remark \n" +
+                    "\t\t\tt1.flow_no\n" +
                     "\t\tFROM\n" +
-                    "\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs_2019 t1\n" +
-                    "\t\twhere t1.account_no IN ('"+accountNo+"')\n" +
+                    "\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs_2019 t1,\n" +
+                    "\t\t\t(\n" +
+                    "\t\t\t\tSELECT DISTINCT\n" +
+                    "\t\t\t\t\tt.request_no,\n" +
+                    "\t\t\t\t\tt.account_no,\n" +
+                    "\t\t\t\t\tt. NAME,\n" +
+                    "\t\t\t\t\tt.biz_type,\n" +
+                    "\t\t\t\t\tt.amount,\n" +
+                    "\t\t\t\t\tt.account_dir,\n" +
+                    "\t\t\t\t\tt.frozen_amount,\n" +
+                    "\t\t\t\t\tt.create_time,\n" +
+                    "\t\t\t\t\tt.finish_time,\n" +
+                    "\t\t\t\t\tt.remain_amount,\n" +
+                    "\t\t\t\t\tt.flow_no\n" +
+                    "\t\t\t\tFROM\n" +
+                    "\t\t\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs_2019 t\n" +
+                    "\t\t\t\tWHERE\n" +
+                    "\t\t\t\t\tt.account_no IN ('"+accountNo+"')\n" +
+                    "\t\t\t) t2\n" +
+                    "\t\tWHERE\n" +
+                    "\t\t\tt1.request_no = t2.request_no\n" +
+                    "\t\tAND t1.flow_no = t2.flow_no\n" +
                     "\t\tAND t1.account_no NOT LIKE 'O%'\n" +
                     "\t) t\n" +
                     "LEFT JOIN mysql_hhr_bank_21_215.bank_depository_hhr.order_batch_trans_detail t1 ON t.request_no = t1.request_no\n" +
@@ -186,15 +226,33 @@ public class TestSqlSplit {
                     "\t\t\tt1.create_time,\n" +
                     "\t\t\tt1.finish_time,\n" +
                     "\t\t\tt1.remain_amount,\n" +
-                    "\t\t\tt1.flow_no,\n" +
-                    "\t\t\tt1.remark\n" +
+                    "\t\t\tt1.flow_no\n" +
                     "\t\tFROM\n" +
-                    "\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs t1\n" +
+                    "\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs t1,\n" +
+                    "\t\t\t(\n" +
+                    "\t\t\t\tSELECT DISTINCT\n" +
+                    "\t\t\t\t\tt.request_no,\n" +
+                    "\t\t\t\t\tt.account_no,\n" +
+                    "\t\t\t\t\tt. NAME,\n" +
+                    "\t\t\t\t\tt.biz_type,\n" +
+                    "\t\t\t\t\tt.amount,\n" +
+                    "\t\t\t\t\tt.account_dir,\n" +
+                    "\t\t\t\t\tt.frozen_amount,\n" +
+                    "\t\t\t\t\tt.create_time,\n" +
+                    "\t\t\t\t\tt.finish_time,\n" +
+                    "\t\t\t\t\tt.remain_amount,\n" +
+                    "\t\t\t\t\tt.flow_no\n" +
+                    "\t\t\t\tFROM\n" +
+                    "\t\t\t\t\tmysql_hhr_bank_21_215.bank_depository_hhr.tran_logs t\n" +
+                    "\t\t\t\tWHERE\n" +
+                    "\t\t\tDATE_FORMAT(t.create_time) in ('2020-11-08','2020-11-10','2020-11-11','2020-11-12','2020-11-13','2020-11-16','2020-11-17','2020-11-18','2020-11-19','2020-11-23') \n" +
+                    "\t\t\tand t.biz_type = 'AUTO_COMPENSATORY' and t.account_no in ("+investAccountNosResult+") \n" +
+                    "\t\t\t) t2\n" +
                     "\t\tWHERE\n" +
-                    "\t\t\tDATE_FORMAT(t1.create_time) in ('2020-11-08','2020-11-10','2020-11-11','2020-11-12','2020-11-13','2020-11-16','2020-11-17','2020-11-18','2020-11-19','2020-11-23')\n" +
-                    "\t\t\tand t1.biz_type = 'AUTO_COMPENSATORY' and t1.account_no in ("+investAccountNosResult+")\n" +
+                    "\t\t\tt1.request_no = t2.request_no\n" +
+                    "\t\tAND t1.flow_no = t2.flow_no\n" +
                     "\t\tAND t1.account_no NOT LIKE 'O%'\n" +
-                    "\t) t\n" +
+                    "\t) t \n" +
                     "LEFT JOIN mysql_hhr_bank_21_215.bank_depository_hhr.order_batch_trans_detail t1 ON t.request_no = t1.request_no\n" +
                     "left join (select code,name from mysql_hhr_bank_21_215.bank_depository_hhr.sys_dict where type = 'batchBizTypeBook')s1\n" +
                     "on s1.CODE = t.biz_type\n" +
